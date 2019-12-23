@@ -20,6 +20,7 @@ class PhiTree:
             self.leaves = PhiTree._get_leaves(tree)
         else:
             raise ValueError("Given tree is not correct")
+
     @staticmethod
     def _get_leaves(tree: List[Node]) -> List[str]:
         vertices, _ = _get_nodes(tree[0])
