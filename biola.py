@@ -4,6 +4,7 @@ from typing import List
 
 from newick import Node
 
+from actions import create
 from phylogenetic_trees.io import load_from_file
 from phylogenetic_trees.trees import PhyTree
 from phylogenetic_trees.visualization import visualize_tree
@@ -41,20 +42,20 @@ def load_tree(file_name) -> None or List[Node]:
         exit()
 
 
-def read_from_commandline():
-    if sys.argv[2] == "--load" or sys.argv[2] == "-l":
+def choose_action(tree: str, action_name: str):
+    if action_name in ["--load", "-l"]:
         tree = load_tree(sys.argv[1])
         fun1()
-    elif sys.argv[2] == "--save" or sys.argv[2] == "-s":
+    elif action_name in ["--save", "-s"]:
         fun2()
-    elif sys.argv[2] == "--show" or sys.argv[2] == "-sh":
+    elif action_name in ["--show", "-sh"]:
         phy_tree: PhyTree
-        if re.match(r'[\S]*\.newick$', sys.argv[1]):
-            phy_tree = load_tree(sys.argv[1])
-        elif re.match(r'\([\S ]+\}\;$', sys.argv[1]):
+        if re.match(r'[\S]*\.newick$', tree):
+            phy_tree = load_tree(tree)
+        elif re.match(r'\([\S ]+\}\;$', tree):
             phy_tree = PhyTree()
             try:
-                phy_tree.parse_string(sys.argv[1])
+                phy_tree.parse_string(tree)
             except ValueError as e:
                 print(e)
                 exit()
@@ -62,17 +63,22 @@ def read_from_commandline():
             print("Post tree as a filename or string")
             exit()
         visualize_tree(phy_tree.get_newick()[0])
-
-    elif sys.argv[2] == "--help" or sys.argv[2] == "-h":
+    elif action_name in ["--help", "-h"]:
         menu()
+    elif action_name in ["--create", "-c"]:
+        create(tree)
     else:
         print("Wrong name function")
+
+
+def read_from_commandline():
+    choose_action(sys.argv[1], sys.argv[2])
 
 
 def read_from_user():
     print("Give file name with extension")
     argument1 = input()
-    print("Give name action  --load  --save  --print --help ")
+    print("Give name action  --load  --save  --print --help --create --update")
     argument2 = input()
 
     try:
