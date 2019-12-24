@@ -2,7 +2,7 @@ import unittest
 
 from newick import loads
 
-from philogenetic_trees.visualization import _position_vertices
+from phylogenetic_trees.visualization import _position_vertices
 
 
 class VisualizeTree(unittest.TestCase):

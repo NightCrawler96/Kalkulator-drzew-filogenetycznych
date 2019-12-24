@@ -1,0 +1,1 @@
+((({A},{B}){A B},({C},{D}){C D}){A B C D},(({E},{F}){E F},{G}){E F G}){A B C D E F G};

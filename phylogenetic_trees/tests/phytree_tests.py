@@ -2,37 +2,37 @@ import unittest
 
 from newick import loads
 
-from philogenetic_trees.trees import PhiTree
+from phylogenetic_trees.trees import PhyTree
 
 
 class PhiTreeParsingTrees(unittest.TestCase):
     def test_detect_group(self):
         group = "{Item Item}"
 
-        self.assertTrue(PhiTree._is_group(group))
+        self.assertTrue(PhyTree._is_group(group))
 
     def test_is_not_group(self):
         group = "{Item Item"
 
-        self.assertFalse(PhiTree._is_group(group))
+        self.assertFalse(PhyTree._is_group(group))
 
     def test_get_leaves(self):
         tree = loads("((A, B){A B},(C, D){C D}){A B C D};")
         leaves = ["A", "B", "C", "D"]
 
-        self.assertListEqual(PhiTree._get_leaves(tree), leaves)
+        self.assertListEqual(PhyTree._get_leaves(tree), leaves)
 
     def test_leaves_inside_group(self):
         group = "{A B C D}"
         leaves = ["A", "B", "C", "D"]
 
-        self.assertListEqual(PhiTree._get_group_leaves(group), leaves)
+        self.assertListEqual(PhyTree._get_group_leaves(group), leaves)
 
     def test_check_group(self):
         tree = loads("(A,(B,C){B C},D){A B C D};")
 
         try:
-            PhiTree._check_group(tree[0])
+            PhyTree._check_group(tree[0])
         except ValueError:
             raise AssertionError()
 
@@ -47,13 +47,13 @@ class PhiTreeParsingTrees(unittest.TestCase):
 
         for t in bad_groups:
             with self.assertRaises(ValueError):
-                PhiTree._check_group(loads(t)[0])
+                PhyTree._check_group(loads(t)[0])
 
     def test_correct_tree(self):
         tree = loads("(A,(B,(C,D){C D}){B C D},E){A B C D E};")
 
         try:
-            PhiTree(tree)
+            PhyTree(tree)
         except ValueError:
             raise AssertionError()
 
@@ -67,7 +67,7 @@ class PhiTreeParsingTrees(unittest.TestCase):
 
         for t in bad_trees:
             with self.assertRaises(ValueError):
-                PhiTree(loads(t))
+                PhyTree(loads(t))
 
 
 if __name__ == '__main__':

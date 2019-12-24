@@ -1,4 +1,12 @@
+import re
 import sys
+from typing import List
+
+from newick import Node
+
+from phylogenetic_trees.io import load_from_file
+from phylogenetic_trees.trees import PhyTree
+from phylogenetic_trees.visualization import visualize_tree
 
 
 def fun1():
@@ -23,20 +31,39 @@ def menu():
     print(" ")
 
 
-def read_from_commandline():
+def load_tree(file_name) -> None or List[Node]:
     try:
-        f = open(sys.argv[1])
+        newick_tree = load_from_file(file_name)
+        phy_tree = PhyTree(newick_tree)
+        return phy_tree
     except IOError:
-        sys.argv[2] = "never mind"
         print("File not accessible")
+        exit()
 
-    if sys.argv[2] == "--load" or sys.argv[2] == "load":
+
+def read_from_commandline():
+    if sys.argv[2] == "--load" or sys.argv[2] == "-l":
+        tree = load_tree(sys.argv[1])
         fun1()
-    elif sys.argv[2] == "--save" or sys.argv[2] == "save":
+    elif sys.argv[2] == "--save" or sys.argv[2] == "-s":
         fun2()
-    elif sys.argv[2] == "--print" or sys.argv[2] == "print":
-        fun3()
-    elif sys.argv[2] == "--help" or sys.argv[2] == "help":
+    elif sys.argv[2] == "--show" or sys.argv[2] == "-sh":
+        phy_tree: PhyTree
+        if re.match(r'[\S]*\.newick$', sys.argv[1]):
+            phy_tree = load_tree(sys.argv[1])
+        elif re.match(r'\([\S ]+\}\;$', sys.argv[1]):
+            phy_tree = PhyTree()
+            try:
+                phy_tree.parse_string(sys.argv[1])
+            except ValueError as e:
+                print(e)
+                exit()
+        else:
+            print("Post tree as a filename or string")
+            exit()
+        visualize_tree(phy_tree.get_newick()[0])
+
+    elif sys.argv[2] == "--help" or sys.argv[2] == "-h":
         menu()
     else:
         print("Wrong name function")
@@ -66,10 +93,10 @@ def read_from_user():
         print("Error - check argument 1 and 2")
 
 
-menu()
-arguments_count = len(sys.argv) - 1
+if __name__ == "__main__":
+    arguments_count = len(sys.argv) - 1
 
-if arguments_count <= 1:
-    read_from_user()
-else:
-    read_from_commandline()
+    if arguments_count <= 1:
+        read_from_user()
+    else:
+        read_from_commandline()
