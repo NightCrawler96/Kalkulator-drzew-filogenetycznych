@@ -16,14 +16,8 @@ class PhyTree:
             self.groups = []
 
     @staticmethod
-    def check_tree(tree: List[Node]) -> bool:
-        try:
-            PhyTree._check_next_node(tree[0])
-        except ValueError as e:
-            print(e)
-            return False
-
-        return True
+    def check_tree(tree: List[Node]):
+        PhyTree._check_next_node(tree[0])
 
     def load_file(self, file_name: str):
         tree = load_from_file(file_name)
@@ -40,8 +34,8 @@ class PhyTree:
         return self._newick_tree
 
     def get_nodes(self):
-        groups, _ = self._get_leaves_and_groups(self._newick_tree)
-         return groups
+        groups, _ = self._get_nodes(self._newick_tree[0])
+        return groups
 
     def add_to_group(self, leaf: str, group: str):
         if not (PhyTree._is_group(group) or PhyTree._is_leaf(group)):
@@ -89,12 +83,13 @@ class PhyTree:
         node.name = node.name.replace("}", f" {leaf}}}")
 
     def _check_and_load(self, tree: List[Node]):
-        if PhyTree.check_tree(tree):
+        try:
+            PhyTree.check_tree(tree)
             self._newick_tree = tree
             self.leaves, self.groups = PhyTree._get_leaves_and_groups(tree)
             self.leaves = [re.sub(r'{|}', "", leaf) for leaf in self.leaves]
-        else:
-            raise ValueError("Given tree is not correct")
+        except ValueError as reason:
+            raise ValueError("Given tree is not correct\n" + str(reason.args[0]))
 
     @staticmethod
     def _is_leaf(node: str):
@@ -148,7 +143,7 @@ class PhyTree:
                 if ch_name in expected_leaves:
                     expected_leaves.remove(ch_name)
                 else:
-                    raise ValueError(f"{ch_name} is not a leaf")
+                    raise ValueError(f"{ch_name} is not a leaf or is duplicated")
 
         if len(expected_leaves) > 0:
             raise ValueError(f"{expected_leaves} are not among the child nodes")
