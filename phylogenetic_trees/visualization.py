@@ -24,12 +24,11 @@ def visualize_tree(root: Node):
     graph = nx.DiGraph()
     graph.add_edges_from(e)
     positions = _position_vertices(root, 1)
-    positions = {node: (x * 10, y * len(v) / 2) for node, (x, y) in zip(v, positions)}
+    positions = {node: (x, y) for node, (x, y) in zip(v, positions)}
 
     nx.draw(
         graph,
         positions,
-        node_size=(250 * len(v)),
         font_size=6,
         with_labels=True)
     plt.show()

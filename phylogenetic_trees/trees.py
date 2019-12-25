@@ -13,7 +13,6 @@ class PhyTree:
         else:
             self._newick_tree = load_from_string("{};")
             self.leaves = []
-            self.groups = []
 
     @staticmethod
     def check_tree(tree: List[Node]):
@@ -37,6 +36,10 @@ class PhyTree:
         groups, _ = self._get_nodes(self._newick_tree[0])
         return groups
 
+    def get_clusters(self):
+        groups = self.get_nodes()
+        return list(filter(lambda n: not re.match(r"{[a-zA-Z0-9]*}", n), groups))
+
     def add_to_group(self, leaf: str, group: str):
         if not (PhyTree._is_group(group) or PhyTree._is_leaf(group)):
             raise ValueError(f"{group} is not a group nor a leaf")
@@ -45,6 +48,7 @@ class PhyTree:
         else:
             PhyTree._add_leaf(self._newick_tree[0], group, leaf)
             self.check_tree(self._newick_tree)
+            self.leaves.append(leaf)
 
     @staticmethod
     def _add_leaf(node: Node, target: str, leaf: str):

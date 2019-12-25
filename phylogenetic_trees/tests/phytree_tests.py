@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from newick import loads, Node
 
+from phylogenetic_trees.compare import consensus
 from phylogenetic_trees.trees import PhyTree
 
 
@@ -20,7 +21,7 @@ class PhiTreeParsingTrees(unittest.TestCase):
     def test_get_leaves(self):
         tree = loads("(({A},{B}){A B},({C},{D}){C D}){A B C D};")
         leaves = ["{A}", "{B}", "{C}", "{D}"]
-        received_leaves , _ = PhyTree._get_leaves_and_groups(tree)
+        received_leaves, _ = PhyTree._get_leaves_and_groups(tree)
         self.assertListEqual(received_leaves, leaves)
 
     def test_leaves_inside_group(self):
@@ -130,6 +131,13 @@ class PhyTreeStructureManipulation(TestCase):
         phy_tree = PhyTree(loads(starting_point))
         with self.assertRaises(ValueError):
             phy_tree.add_to_group("D", "{A}")
+
+
+class PhyTreeCompareTestCase(TestCase):
+    def test_consensus_two_trees(self):
+        first = PhyTree(loads("({A},({B},({C},{D}){C D}){B C D}){A B C D};"))
+        second = PhyTree(loads("(({A},{B}){A B},({C},{D}){C D}){A B C D};"))
+        result = consensus([first, second], .5)
 
 
 if __name__ == '__main__':

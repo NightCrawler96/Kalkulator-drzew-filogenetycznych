@@ -1,8 +1,10 @@
 import re
+import string
+from random import choice
 
 from newick import dumps
 
-from actions import ask_if_finished
+from actions import ask_if_finished, get_number
 from phylogenetic_trees.trees import PhyTree
 
 
@@ -42,3 +44,15 @@ def update(file_name: str):
     modify(file_name, tree)
 
 
+def random_tree(file_name: str):
+    print("Number of leaves:")
+    leaves_num = get_number()
+    leaves_queue = string.ascii_uppercase[:leaves_num]
+
+    tree = PhyTree()
+    for l in leaves_queue:
+        available_nodes = list(filter(lambda n: re.match(r"{[a-zA-Z0-9]*}", n), tree.get_nodes()))
+        chosen_node = choice(available_nodes)
+        tree.add_to_group(l, chosen_node)
+
+    tree.save(file_name)
