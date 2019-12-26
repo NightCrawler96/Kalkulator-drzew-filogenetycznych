@@ -1,3 +1,5 @@
+import os
+
 from actions import ask_if_finished, get_float
 from phylogenetic_trees.compare import consensus
 from phylogenetic_trees.trees import PhyTree
@@ -10,7 +12,15 @@ def consensus_tree():
         try:
             phy_tree = PhyTree()
             path = input("Tree's path: ")
-            phy_tree.load_file(path)
+            if os.path.isdir(path):
+                files = os.listdir(path)
+                for f in files:
+                    p = PhyTree()
+                    p.load_file(path + f)
+                    trees.append(p)
+                break
+            else:
+                phy_tree.load_file(path)
         except ValueError as e:
             print(e)
             continue

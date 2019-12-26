@@ -11,7 +11,7 @@ def compare_groups(group_left: List[str], group_right: List[str]):
 
 
 def consensus(trees: List[PhyTree], threshold: float) -> PhyTree:
-    assert 0 < threshold < 1
+    assert 0.5 <= threshold < 1
 
     def set_or_add(dictionary: dict, key: str):
         if key in dictionary.keys():
@@ -41,7 +41,6 @@ def consensus(trees: List[PhyTree], threshold: float) -> PhyTree:
             set_or_add(clusters, g)
     clusters = {c: x/len(trees) for c, x in clusters.items()}
     clusters = dict(filter(lambda i: i[1] > threshold, clusters.items())).keys()
-    # TODO: Find overlapping clusters and solve te overlap i.e.: {A B C}:.6 and {C D}:.7 -> {A B} and {C D}
     cluster_sets = [set(filter(lambda x: re.match(r'[a-zA-Z0-9]+', x), set(c))) for c in clusters]
     cluster_sets = sorted(cluster_sets, key=lambda x: len(x), reverse=True)
     blocks = [TreeBlock(s) for s in cluster_sets]

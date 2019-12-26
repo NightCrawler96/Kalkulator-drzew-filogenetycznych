@@ -1,6 +1,6 @@
 import re
 import sys
-from typing import List
+from typing import List, Any
 
 from newick import Node
 
@@ -32,7 +32,7 @@ def load_tree(file_name) -> None or List[Node]:
         exit()
 
 
-def choose_action(tree: str, action_name: str):
+def choose_action(tree: str, action_name: str, optional: str = None):
     if action_name in ["--update", "-u"]:
         update(tree)
     elif action_name in ["--show", "-sh"]:
@@ -53,13 +53,20 @@ def choose_action(tree: str, action_name: str):
     elif action_name in ["--create", "-c"]:
         create(tree)
     elif action_name in ["--random-tree", "-r"]:
-        random_tree(tree)
+        if optional is None:
+            random_tree(tree)
+        else:
+            random_tree(tree, int(optional))
     else:
         print("Wrong name function")
 
 
 def read_from_commandline():
-    choose_action(sys.argv[1], sys.argv[2])
+    choose_action(
+        sys.argv[1],
+        sys.argv[2],
+        sys.argv[3] if len(sys.argv) > 3 else None,
+    )
 
 
 def no_file_action():
