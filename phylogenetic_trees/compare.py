@@ -1,3 +1,4 @@
+import re
 from typing import List
 
 from newick import Node
@@ -27,5 +28,10 @@ def consensus(trees: List[PhyTree], threshold: float) -> PhyTree:
     clusters = dict(filter(lambda i: i[1] > threshold, clusters.items())).keys()
     # TODO: Find overlapping clusters and solve te overlap i.e.: {A B C}:.6 and {C D}:.7 -> {A B} and {C D}
     # TODO: Sort clusters by length -> find dependencies between clusters -> connect them to a tree
+    cluster_sets = [set(filter(lambda x: re.match(r'[a-zA-Z0-9]+', x), set(c))) for c in clusters]
+    cluster_sets = sorted(cluster_sets, key=lambda x: len(x), reverse=True)
+    leaves = set()
+    for c in cluster_sets:
+        leaves = leaves | c
     pass
 
