@@ -1,3 +1,6 @@
+from typing import Any
+
+
 def ask_if_finished():
     return ask("Have you finished?")
 
@@ -12,11 +15,19 @@ def ask(question: str) -> bool:
             return False
 
 
-def get_number() -> int:
+def get_type(T: type) -> Any:
     while True:
         try:
-            num = int(input())
+            num = T(input())
             return num
         except ValueError:
-            print("Enter a number")
+            print(f"Enter a {T}")
+
+
+def get_integer() -> int:
+    return get_type(int)
+
+
+def get_float() -> float:
+    return get_type(float)
 

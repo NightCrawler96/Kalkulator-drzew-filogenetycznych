@@ -4,7 +4,7 @@ from typing import List
 
 from newick import Node
 
-from actions import create, update, random_tree
+from actions import create, update, random_tree, consensus_tree
 from phylogenetic_trees.io import load_from_file
 from phylogenetic_trees.trees import PhyTree
 from phylogenetic_trees.visualization import visualize_tree
@@ -13,10 +13,12 @@ from phylogenetic_trees.visualization import visualize_tree
 def menu():
     print("Script menu")
     print("-------------------")
-    print("First argument is name file to read")
-    print("Second argument is action, available actions: --show --create --update --random-tree --help")
-    print("Next arguments aren't read")
-    print("Example call: python biola.py tree.newick --show")
+    print("Available functions:\n"
+          "[file] --create, --update, --random-tree, --show\n"
+          "--help, --consensus")
+    print("Example calls:\n"
+          "python biola.py tree.newick --show\n"
+          "python biola.py --help")
     print(" ")
 
 
@@ -48,8 +50,6 @@ def choose_action(tree: str, action_name: str):
             print("Post tree as a filename or string")
             exit()
         visualize_tree(phy_tree.get_newick()[0])
-    elif action_name in ["--help", "-h"]:
-        menu()
     elif action_name in ["--create", "-c"]:
         create(tree)
     elif action_name in ["--random-tree", "-r"]:
@@ -62,18 +62,22 @@ def read_from_commandline():
     choose_action(sys.argv[1], sys.argv[2])
 
 
-def read_from_user():
-    argument1 = input("Give file name with extension: ")
-    print("Give name action --show --help --create --update")
-    argument2 = input()
+def no_file_action():
+    print("actions available: --help --consensus")
+    action = input("Choose action: ")
 
-    choose_action(argument1, argument2)
+    if action in ["--help", "-h"]:
+        menu()
+    elif action in ["--consensus", "-cons"]:
+        consensus_tree()
+    else:
+        print("Unknown action")
 
 
 if __name__ == "__main__":
-    arguments_count = len(sys.argv) - 1
+    arguments_count = len(sys.argv)
 
-    if arguments_count <= 1:
-        read_from_user()
+    if arguments_count == 1:
+        no_file_action()
     else:
         read_from_commandline()

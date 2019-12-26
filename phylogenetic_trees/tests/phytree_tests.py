@@ -7,6 +7,12 @@ from phylogenetic_trees.compare import consensus
 from phylogenetic_trees.trees import PhyTree
 
 
+def compare_nodes(case: TestCase, node0: Node, node1: Node):
+    case.assertEqual(node0.name, node1.name)
+    for ch0, ch1 in zip(node0.descendants, node1.descendants):
+        compare_nodes(case, ch0, ch1)
+
+
 class PhiTreeParsingTrees(unittest.TestCase):
     def test_detect_group(self):
         group = "{Item Item}"
@@ -73,11 +79,6 @@ class PhiTreeParsingTrees(unittest.TestCase):
 
 
 class PhyTreeStructureManipulation(TestCase):
-    def compare_nodes(self, node0: Node, node1: Node):
-        self.assertEqual(node0.name, node1.name)
-        for ch0, ch1 in zip(node0.descendants, node1.descendants):
-            self.compare_nodes(ch0, ch1)
-
     def test_add_leaf_new_group(self):
         old_tree = "(({A},{B}){A B},{C}){A B C};"
         new_tree = "(({A},({B},{X}){B X}){A B X},{C}){A B C X};"
@@ -88,7 +89,7 @@ class PhyTreeStructureManipulation(TestCase):
         olf_phy.add_to_group("X", "{B}")
 
         old_newick, new_newick = olf_phy.get_newick(), new_phy.get_newick()
-        self.compare_nodes(old_newick[0], new_newick[0])
+        compare_nodes(self, old_newick[0], new_newick[0])
 
     def test_add_leaf_append_group(self):
         old_tree = "(({A},{B}){A B},{C}){A B C};"
@@ -100,7 +101,7 @@ class PhyTreeStructureManipulation(TestCase):
         olf_phy.add_to_group("X", "{A B}")
 
         old_newick, new_newick = olf_phy.get_newick(), new_phy.get_newick()
-        self.compare_nodes(old_newick[0], new_newick[0])
+        compare_nodes(self, old_newick[0], new_newick[0])
 
     def test_create_new_tree(self):
         starting_root = "{};"
@@ -108,7 +109,7 @@ class PhyTreeStructureManipulation(TestCase):
 
         phy_tree = PhyTree(loads(starting_root))
         phy_tree.add_to_group("A", "{}")
-        self.compare_nodes(phy_tree.get_newick()[0], loads(first_leaf)[0])
+        compare_nodes(self, phy_tree.get_newick()[0], loads(first_leaf)[0])
 
     def test_add_second_leaf(self):
         starting_point = "{A};"
@@ -116,7 +117,7 @@ class PhyTreeStructureManipulation(TestCase):
 
         phy_tree = PhyTree(loads(starting_point))
         phy_tree.add_to_group("B", "{A}")
-        self.compare_nodes(phy_tree.get_newick()[0], loads(expected_tree)[0])
+        compare_nodes(self, phy_tree.get_newick()[0], loads(expected_tree)[0])
 
     def test_add_second_level(self):
         starting_point = "({A},{B}){A B};"
@@ -124,7 +125,7 @@ class PhyTreeStructureManipulation(TestCase):
 
         phy_tree = PhyTree(loads(starting_point))
         phy_tree.add_to_group("C", "{B}")
-        self.compare_nodes(phy_tree.get_newick()[0], loads(expected_tree)[0])
+        compare_nodes(self, phy_tree.get_newick()[0], loads(expected_tree)[0])
 
     def test_no_leaves_with_the_same_name(self):
         starting_point = "({A},({B},{D}){B D},{C}){A B C D};"
@@ -138,6 +139,19 @@ class PhyTreeCompareTestCase(TestCase):
         first = PhyTree(loads("({A},({B},({C},{D}){C D}){B C D}){A B C D};"))
         second = PhyTree(loads("(({A},{B}){A B},({C},{D}){C D}){A B C D};"))
         result = consensus([first, second], .5)
+
+        compare_nodes(self, result.get_newick()[0], loads("({A},{B},({C},{D}){C D}){A B C D};")[0])
+
+    def test_consensus_multiple_trees(self):
+        trees = [
+            PhyTree(loads("({A},({B},({C},{D}){C D}){B C D}){A B C D};")),
+            PhyTree(loads("({A},{B},({C},{D}){C D}){A B C D};")),
+            PhyTree(loads("({A},{B},{C},{D}){A B C D};")),
+            PhyTree(loads("(({A},{B}){A B},({C},{D}){C D}){A B C D};")),
+        ]
+        result = consensus(trees, .6)
+
+        compare_nodes(self, result.get_newick()[0], loads("({A},{B},({C},{D}){C D}){A B C D};")[0])
 
 
 if __name__ == '__main__':
