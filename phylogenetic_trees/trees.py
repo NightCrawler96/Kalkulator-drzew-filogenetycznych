@@ -7,12 +7,14 @@ from phylogenetic_trees.io import load_from_file, load_from_string, write_to_fil
 
 
 class PhyTree:
+    leaves: set
+
     def __init__(self, newick_tree: List[Node] = None):
         if newick_tree is not None:
             self._check_and_load(newick_tree)
         else:
             self._newick_tree = load_from_string("{};")
-            self.leaves = []
+            self.leaves = set()
 
     @staticmethod
     def check_tree(tree: List[Node]):
@@ -48,7 +50,7 @@ class PhyTree:
         else:
             PhyTree._add_leaf(self._newick_tree[0], group, leaf)
             self.check_tree(self._newick_tree)
-            self.leaves.append(leaf)
+            self.leaves.add(leaf)
 
     @staticmethod
     def _add_leaf(node: Node, target: str, leaf: str):
@@ -91,7 +93,7 @@ class PhyTree:
             PhyTree.check_tree(tree)
             self._newick_tree = tree
             self.leaves, self.groups = PhyTree._get_leaves_and_groups(tree)
-            self.leaves = [re.sub(r'{|}', "", leaf) for leaf in self.leaves]
+            self.leaves = {re.sub(r'{|}', "", leaf) for leaf in self.leaves}
         except ValueError as reason:
             raise ValueError("Given tree is not correct\n" + str(reason.args[0]))
 
@@ -100,15 +102,15 @@ class PhyTree:
         return re.match(r'{([a-zA-Z0-9]+|)}', node)
 
     @staticmethod
-    def _get_leaves_and_groups(tree: List[Node]) -> (List[str], List[str]):
+    def _get_leaves_and_groups(tree: List[Node]) -> (set, set):
         vertices, _ = PhyTree._get_nodes(tree[0])
         if len(vertices) < 2:
-            return vertices, []
-        leaves = list(filter(lambda v: not PhyTree._is_group(v), vertices))
-        groups = list(filter(lambda v: PhyTree._is_group(v), vertices))
-        if leaves is []:
+            return vertices, set()
+        leaves = set(filter(lambda v: not PhyTree._is_group(v), vertices))
+        groups = set(filter(lambda v: PhyTree._is_group(v), vertices))
+        if len(leaves) < 1:
             raise ValueError("Given tree has no legit leaves")
-        elif groups is []:
+        elif len(groups) < 1:
             raise ValueError("No groups were find inside a tree")
         return leaves, groups
 
@@ -160,7 +162,7 @@ class PhyTree:
                 PhyTree._check_next_node(child)
 
     @staticmethod
-    def _get_nodes(node: Node):
+    def _get_nodes(node: Node) -> (List[str], List[str]):
         vertices = [node.name]
         edges = []
 
@@ -172,3 +174,40 @@ class PhyTree:
                 edges += child_edges
 
         return vertices, edges
+
+
+def phytree_from_groups(groups: List[set]):
+    class TreeBlock:
+        name: set
+        contains: List[str]
+
+        def __init__(self, name: set):
+            self.name = name
+            self.contains = []
+
+        def name_to_str(self) -> str:
+            name_str = re.sub(r"[,']", "", str(sorted(self.name))).replace("[", "{").replace("]", "}")
+            return name_str
+
+        def __str__(self):
+            return f"Group: {self.name}, Contains: {self.contains}"
+
+    cluster_sets = [set(filter(lambda x: re.match(r'[a-zA-Z0-9]+', x), set(c))) for c in groups]
+    cluster_sets = sorted(cluster_sets, key=lambda x: len(x), reverse=True)
+    blocks = [TreeBlock(s) for s in cluster_sets]
+    for b in blocks:
+        for other_block in blocks:
+            if b.name > other_block.name:
+                b.contains.append(other_block.name_to_str())
+    blocks = list(sorted(blocks, key=lambda b: len(b.contains)))
+    nodes: List[Node] = []
+    for b in blocks:
+        node = Node(b.name_to_str())
+        for d in b.contains:
+            descendant = list(filter(lambda n: n.name == d, nodes))
+            if len(descendant) > 0:
+                node.descendants.append(descendant[0])
+                node.descendants = list(sorted(node.descendants, key=lambda d: d.name))
+                nodes.remove(descendant[0])
+        nodes.append(node)
+    return PhyTree(nodes)

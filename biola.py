@@ -4,7 +4,7 @@ from typing import List, Any
 
 from newick import Node
 
-from actions import create, update, random_tree, consensus_tree
+from actions import create, update, random_tree, consensus_tree, cut
 from phylogenetic_trees.io import load_from_file
 from phylogenetic_trees.trees import PhyTree
 from phylogenetic_trees.visualization import visualize_tree
@@ -14,7 +14,7 @@ def menu():
     print("Script menu")
     print("-------------------")
     print("Available functions:\n"
-          "[file] --create, --update, --random-tree, --show\n"
+          "[file] --create, --update, --random-tree, --cut, --show\n"
           "--help, --consensus")
     print("Example calls:\n"
           "python biola.py tree.newick --show\n"
@@ -57,6 +57,8 @@ def choose_action(tree: str, action_name: str, optional: str = None):
             random_tree(tree)
         else:
             random_tree(tree, int(optional))
+    elif action_name in ["--cut"]:
+        cut(tree)
     else:
         print("Wrong name function")
 

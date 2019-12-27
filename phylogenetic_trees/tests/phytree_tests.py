@@ -26,9 +26,9 @@ class PhiTreeParsingTrees(unittest.TestCase):
 
     def test_get_leaves(self):
         tree = loads("(({A},{B}){A B},({C},{D}){C D}){A B C D};")
-        leaves = ["{A}", "{B}", "{C}", "{D}"]
+        leaves = {"{A}", "{B}", "{C}", "{D}"}
         received_leaves, _ = PhyTree._get_leaves_and_groups(tree)
-        self.assertListEqual(received_leaves, leaves)
+        self.assertSetEqual(received_leaves, leaves)
 
     def test_leaves_inside_group(self):
         group = "{A B C D}"
