@@ -1,5 +1,5 @@
 import re
-from typing import List, Tuple
+from typing import List, Tuple, Set
 
 from newick import Node
 
@@ -211,3 +211,7 @@ def phytree_from_groups(groups: List[set]):
                 nodes.remove(descendant[0])
         nodes.append(node)
     return PhyTree(nodes)
+
+
+def bipartitions(tree: PhyTree) -> Set[tuple]:
+    pass

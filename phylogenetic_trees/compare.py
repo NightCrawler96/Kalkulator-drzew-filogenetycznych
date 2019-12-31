@@ -1,13 +1,6 @@
-import re
-from typing import List
-
-from newick import Node
+from typing import List, Set
 
 from phylogenetic_trees.trees import PhyTree, phytree_from_groups
-
-
-def compare_groups(group_left: List[str], group_right: List[str]):
-    common_nodes = set(group_left) & set(group_right)
 
 
 def consensus(trees: List[PhyTree], threshold: float) -> PhyTree:
@@ -28,3 +21,7 @@ def consensus(trees: List[PhyTree], threshold: float) -> PhyTree:
     clusters = list(dict(filter(lambda i: i[1] > threshold, clusters.items())).keys())
 
     return phytree_from_groups(clusters)
+
+
+def rf_distance(tree_left: PhyTree, tree_right: PhyTree) -> int:
+    pass
