@@ -15,7 +15,6 @@ Dostępne funkcje:
 Tworzenie drzewa:
 --
 Drzewo można stworzyć przy pomocy funkcji `--create` lub `--random-tree`. Pierwsza z nich pozwala na zbudowanie drzewa przez dodawanie wybranych liści do odpowiednich rodzin. Druga natomiast tworzy losowe drzewo o zadanej liczbie liści.
-Istnieje także możliwość dodawania liści do istniejących już drzew przy pomocy funkcji `--update`.
 
 Modyfikowanie drzew
 --
