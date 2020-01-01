@@ -1,7 +1,7 @@
 import os
 
-from actions import ask_if_finished, get_float
-from phylogenetic_trees.compare import consensus
+from actions import ask_if_finished, get_float, get_file_path
+from phylogenetic_trees.compare import consensus, rf_distance
 from phylogenetic_trees.trees import PhyTree
 
 
@@ -32,3 +32,16 @@ def consensus_tree():
     result = consensus(trees, threshold)
     path = input("Save as: ")
     result.save(path)
+
+
+def rf_distance_cmd():
+    print("First tree:")
+    left = get_file_path()
+    print("Second tree:")
+    right = get_file_path()
+    left_tree = PhyTree()
+    left_tree.load_file(left)
+    right_tree = PhyTree()
+    right_tree.load_file(right)
+    distance = rf_distance(left_tree, right_tree)
+    print(f"Distance: {distance}")

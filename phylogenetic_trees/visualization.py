@@ -20,7 +20,7 @@ def _position_vertices(root: Node, available_space: float) -> List[tuple]:
 
 
 def visualize_tree(root: Node):
-    v, e = PhyTree._get_nodes(root)
+    v, e = PhyTree._get_structure(root)
     graph = nx.DiGraph()
     graph.add_edges_from(e)
     positions = _position_vertices(root, 1)

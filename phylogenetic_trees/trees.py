@@ -35,7 +35,7 @@ class PhyTree:
         return self._newick_tree
 
     def get_nodes(self):
-        groups, _ = self._get_nodes(self._newick_tree[0])
+        groups, _ = self._get_structure(self._newick_tree[0])
         return groups
 
     def get_clusters(self):
@@ -103,7 +103,7 @@ class PhyTree:
 
     @staticmethod
     def _get_leaves_and_groups(tree: List[Node]) -> (set, set):
-        vertices, _ = PhyTree._get_nodes(tree[0])
+        vertices, _ = PhyTree._get_structure(tree[0])
         if len(vertices) < 2:
             return vertices, set()
         leaves = set(filter(lambda v: not PhyTree._is_group(v), vertices))
@@ -162,13 +162,13 @@ class PhyTree:
                 PhyTree._check_next_node(child)
 
     @staticmethod
-    def _get_nodes(node: Node) -> (List[str], List[str]):
+    def _get_structure(node: Node) -> (List[str], List[str]):
         vertices = [node.name]
         edges = []
 
         for child in node.descendants:
             edges.append((node.name, child.name))
-            child_vertices, child_edges = PhyTree._get_nodes(child)
+            child_vertices, child_edges = PhyTree._get_structure(child)
             if child_vertices is not []:
                 vertices += child_vertices
                 edges += child_edges
@@ -213,5 +213,20 @@ def phytree_from_groups(groups: List[set]):
     return PhyTree(nodes)
 
 
-def bipartitions(tree: PhyTree) -> Set[tuple]:
-    pass
+def bipartitions(tree: PhyTree) -> List[tuple]:
+    root = tree.get_newick()[0]
+    _, edges = PhyTree._get_structure(root)
+    leaves = set(PhyTree._get_group_leaves(root.name, add_brackets=False))
+    partitions = []
+    for e in edges:
+        child_leaves = set(PhyTree._get_group_leaves(e[1], add_brackets=False))
+        rest = leaves - child_leaves
+        if len(child_leaves) > len(rest):
+            b = rest.copy()
+            rest = child_leaves.copy()
+            child_leaves = b
+        if (child_leaves, rest) not in partitions and (rest, child_leaves) not in partitions:
+            partitions.append((rest, child_leaves))
+
+    return partitions
+

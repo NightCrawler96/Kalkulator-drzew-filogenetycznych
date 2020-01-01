@@ -1,6 +1,6 @@
 from typing import List, Set
 
-from phylogenetic_trees.trees import PhyTree, phytree_from_groups
+from phylogenetic_trees.trees import PhyTree, phytree_from_groups, bipartitions
 
 
 def consensus(trees: List[PhyTree], threshold: float) -> PhyTree:
@@ -24,4 +24,7 @@ def consensus(trees: List[PhyTree], threshold: float) -> PhyTree:
 
 
 def rf_distance(tree_left: PhyTree, tree_right: PhyTree) -> int:
-    pass
+    left_bp = bipartitions(tree_left)
+    right_bp = bipartitions(tree_right)
+    diff = [bp for bp in left_bp if bp not in right_bp] + [bp for bp in right_bp if bp not in left_bp]
+    return 2 * len(diff)

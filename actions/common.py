@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 
@@ -30,4 +31,13 @@ def get_integer() -> int:
 
 def get_float() -> float:
     return get_type(float)
+
+
+def get_file_path() -> str:
+    while True:
+        file = input("File path: ")
+        if os.path.isfile(file):
+            return file
+        else:
+            print("Couldn't find that file")
 

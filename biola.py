@@ -4,7 +4,7 @@ from typing import List, Any
 
 from newick import Node
 
-from actions import create, update, random_tree, consensus_tree, cut
+from actions import create, update, random_tree, consensus_tree, cut, rf_distance_cmd
 from phylogenetic_trees.io import load_from_file
 from phylogenetic_trees.trees import PhyTree
 from phylogenetic_trees.visualization import visualize_tree
@@ -15,7 +15,7 @@ def menu():
     print("-------------------")
     print("Available functions:\n"
           "[file] --create, --update, --random-tree, --cut, --show\n"
-          "--help, --consensus")
+          "--help, --consensus, -rf")
     print("Example calls:\n"
           "python biola.py tree.newick --show\n"
           "python biola.py --help")
@@ -72,13 +72,15 @@ def read_from_commandline():
 
 
 def no_file_action():
-    print("actions available: --help --consensus")
+    print("actions available: --help --consensus, -rf")
     action = input("Choose action: ")
 
     if action in ["--help", "-h"]:
         menu()
     elif action in ["--consensus", "-cons"]:
         consensus_tree()
+    elif action == "-rf":
+        rf_distance_cmd()
     else:
         print("Unknown action")
 
